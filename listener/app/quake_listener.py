@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-
+from datetime import datetime, timedelta, timezone
 from tornado.websocket import websocket_connect
 from tornado.ioloop import IOLoop
 from tornado import gen
@@ -35,7 +35,8 @@ def process_event(message):
     time_str = props.get('time')
 
     logging.info("Earthquake: %.1fM in %s at %s", mag, region, time_str)
-
+    if datetime.now(timezone.utc) - datetime.fromisoformat(time_str) > timedelta(hours=1):
+        logging.info("Skip quake %s (older than 1h)", quake_id); return
     if quake_id and quake_id in processed_quakes:
         logging.info("Skip quake %s (already processed)", quake_id); return
     if quake_id: processed_quakes.add(quake_id)
