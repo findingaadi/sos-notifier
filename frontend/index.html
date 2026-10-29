@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Earthquake Notification - By Adarsha</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+</head>
+
+<body>
+
+  <h2>Earthquake SOS Notification Service</h2>
+  <p>Please enter your details and choose a location on the map.</p>
+
+  <div class="form-group">
+    <label>Name: <input type="text" id="name" /></label>
+  </div>
+
+  <div class="form-group">
+    <label>Email: <input type="email" id="email" /></label>
+  </div>
+
+  <div class="form-group">
+    <label>Next of Kin Phone Number: +44<input type="tel" id="phone" maxlength="10"/></label>
+  </div>
+
+  <div class="form-group">
+    <label>Radius (KM): <input type="number" id="radius" /></label>
+  </div>
+
+  <div id="map"></div>
+
+  <input type="hidden" id="lat">
+  <input type="hidden" id="lon">
+
+  <button onclick="submitForm()">Submit</button>
+
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+  <script>
+    const defaultLat = 55.9533, defaultLon = -3.1883;
+    const map = L.map('map').setView([defaultLat, defaultLon], 8);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const marker = L.marker([defaultLat, defaultLon], { draggable: true }).addTo(map);
+
+    document.getElementById('lat').value = defaultLat;
+    document.getElementById('lon').value = defaultLon;
+
+    marker.on('dragend', function(e) {
+      const { lat, lng } = e.target.getLatLng();
+      document.getElementById('lat').value = lat;
+      document.getElementById('lon').value = lng;
+    });
+
+    async function submitForm() {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const phone = "+44"+document.getElementById('phone').value;
+      const radius = document.getElementById('radius').value;
+      const lat = document.getElementById('lat').value;
+      const lon = document.getElementById('lon').value;
+
+      if (!name || !email || !phone || !radius) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      const payload = {
+        name: name,
+        email: email,
+        number: phone,
+        radius: radius,
+        location: {
+          lat: lat,
+          lon: lon
+        }
+      };
+
+      try {
+        const response = await fetch("${api_url}", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          alert("Successfully submitted!");
+        } else {
+          alert("Submission failed: " + result.error);
+        }
+
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Something went wrong!");
+      }
+    }
+  </script>
+
+</body>
+</html>
