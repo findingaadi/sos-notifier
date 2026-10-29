@@ -8,7 +8,7 @@ resource "aws_apigatewayv2_api" "sos" {
 
   cors_configuration {
     # shortcut: any website may call the API, narrow it to the S3 site's address in Step 4
-    allow_origins = ["*"]
+    allow_origins = ["http://${aws_s3_bucket_website_configuration.site.website_endpoint}"]
     allow_methods = ["POST"]
     allow_headers = ["content-type"]
   }
