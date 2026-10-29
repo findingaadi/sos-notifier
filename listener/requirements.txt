@@ -1,0 +1,4 @@
+tornado<7
+boto3
+twilio
+python-dotenv

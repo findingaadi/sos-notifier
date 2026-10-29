@@ -3,3 +3,4 @@
 *.tfstate.*
 build/
 response.json
+.env
